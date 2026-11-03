@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EnquiryMailService {
-    private final JavaMailSender sender;
+    private final JavaMailSender mailsSender;
     private final String from;
     private final String to;
 
     public EnquiryMailService(JavaMailSender sender,
                               @Value("${spring.mail.username}") String from,
                               @Value("${app.mail.to}") String to) {
-        this.sender = sender;
+        this.mailsSender = sender;
         this.from = from;
         this.to = to;
     }
@@ -33,6 +33,6 @@ public class EnquiryMailService {
                 "\n" + submission.message();
 
         msg.setText(body);
-        sender.send(msg);
+        mailsSender.send(msg);
     }
 }
