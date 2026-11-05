@@ -34,4 +34,6 @@ class EnquiryMailServiceTest {
         assertThat(sent.getReplyTo()).isEqualTo("thandi@example.com");
         assertThat(sent.getText()).contains("Thandi", "Need a quote please");
     }
+
+
 }

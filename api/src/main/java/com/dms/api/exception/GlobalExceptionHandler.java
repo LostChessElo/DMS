@@ -1,6 +1,5 @@
 package com.dms.api.exception;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import com.dms.api.dtos.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
