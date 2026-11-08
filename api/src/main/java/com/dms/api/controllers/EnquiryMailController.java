@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/enquire")
+@RequestMapping("/api/v1/enquiries")
 public class EnquiryMailController {
     private final EnquiryMailService service;
 
@@ -22,7 +22,8 @@ public class EnquiryMailController {
 
     @PostMapping
     public ResponseEntity<SubmissionResponse> email(@RequestBody @Valid FormSubmission submission) {
-        return new ResponseEntity<>(new SubmissionResponse("done"), HttpStatus.OK);
+        service.send(submission);
+        SubmissionResponse response = new SubmissionResponse("Thank you for the email, we'll get back to you shortly!");
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
 }

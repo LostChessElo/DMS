@@ -27,6 +27,7 @@ public class EnquiryMailService {
         msg.setTo(to);
         msg.setFrom(from);
         msg.setReplyTo(submission.email());
+        msg.setSubject("New message from: " + submission.name());
 
         String body = "From: " + submission.name() +
                 "\nEmail: " + submission.email() +

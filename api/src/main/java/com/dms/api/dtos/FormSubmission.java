@@ -11,7 +11,7 @@ public record FormSubmission(
         String name,
 
         @NotBlank(message = "Email is required")
-        @Email(message = "Email must be valid")
+        @Email(message = "Email must be valid", regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
         @Size(max = 254, message = "Email must be at most 254 characters")
         String email,
 
