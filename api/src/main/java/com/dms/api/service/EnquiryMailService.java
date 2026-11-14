@@ -31,7 +31,7 @@ public class EnquiryMailService {
 
         String body = "From: " + submission.name() +
                 "\nEmail: " + submission.email() +
-                "\n" + submission.message();
+                "\n\n" + submission.message();
 
         msg.setText(body);
         mailsSender.send(msg);
