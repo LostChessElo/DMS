@@ -33,7 +33,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpHeaders headers,
+            MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
             @NonNull HttpStatusCode status, @NonNull WebRequest request) {
 
         Map<String, String> fieldErrors = new LinkedHashMap<>();
@@ -59,8 +59,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
-            Exception ex, @Nullable Object body, HttpHeaders headers,
-            HttpStatusCode statusCode, WebRequest request) {
+            @NonNull Exception ex, @Nullable Object body, @NonNull HttpHeaders headers,
+            HttpStatusCode statusCode, @NonNull WebRequest request) {
         HttpStatus resolved = HttpStatus.resolve(statusCode.value());
         String message = resolved != null ? resolved.getReasonPhrase() : "Request failed";
         return new ResponseEntity<>(

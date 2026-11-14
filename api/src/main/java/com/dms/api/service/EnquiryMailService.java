@@ -14,7 +14,7 @@ public class EnquiryMailService {
     private final String to;
 
     public EnquiryMailService(JavaMailSender sender,
-                              @Value("${spring.mail.username}") String from,
+                              @Value("${app.mail.from}") String from,
                               @Value("${app.mail.to}") String to) {
         this.mailsSender = sender;
         this.from = from;
