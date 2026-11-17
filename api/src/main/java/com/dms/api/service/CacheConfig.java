@@ -1,5 +1,6 @@
-package com.dms.api.config;
+package com.dms.api.service;
 
+import com.dms.api.dtos.IdempotencyRecord;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +12,9 @@ import java.time.Duration;
 public class CacheConfig {
 
     @Bean
-    public Cache<String, IndempotencyRecord> indempotencyCache() {
+    public Cache<String, IdempotencyRecord> indempotencyCache() {
         return Caffeine.newBuilder()
-                .expireAfterWrite(Duration.ofHours(24))
+                .expireAfterWrite(Duration.ofMinutes(10))
                 .maximumSize(10_000)
                 .build();
     }
