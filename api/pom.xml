@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.dms</groupId>
     <artifactId>api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>dms-api</name>
     <description>Enquiry API for Dineo Management Services</description>
 
@@ -53,6 +53,8 @@
     </dependencies>
 
     <build>
+        <finalName>dms-api-${project.version}</finalName>
+        
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
