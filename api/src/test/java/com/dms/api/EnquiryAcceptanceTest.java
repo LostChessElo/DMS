@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -29,7 +31,10 @@ class EnquiryAcceptanceTest {
     RestTestClient client;
 
     private RestTestClient.ResponseSpec post(String body) {
+        String uuid = UUID.randomUUID().toString();
+
         return client.post().uri(PATH)
+                .header("Idempotency-Key", uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body)
                 .exchange();
