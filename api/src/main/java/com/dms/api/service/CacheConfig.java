@@ -7,12 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @Configuration
 public class CacheConfig {
 
     @Bean
-    public Cache<String, IdempotencyRecord> indempotencyCache() {
+    public Cache<UUID, IdempotencyRecord> indempotencyCache() {
         return Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofMinutes(10))
                 .maximumSize(10_000)

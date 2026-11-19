@@ -4,9 +4,12 @@ import com.dms.api.dtos.FormSubmission;
 import com.dms.api.dtos.SubmissionResponse;
 import com.dms.api.service.IdempotencyService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/enquiries")
@@ -19,7 +22,7 @@ public class EnquiryMailController {
 
     @PostMapping
     public ResponseEntity<SubmissionResponse> email(
-            @RequestHeader("Idempotency-Key")  String key,
+            @RequestHeader("Idempotency-Key") UUID key,
             @RequestBody @Valid FormSubmission submission)
     {
         service.process(key, submission);

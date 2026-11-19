@@ -11,19 +11,20 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class IdempotencyService {
 
-    private final Cache<String, IdempotencyRecord> cache;
+    private final Cache<UUID, IdempotencyRecord> cache;
     private final EnquiryMailService mailService;
 
-    public IdempotencyService(Cache<String, IdempotencyRecord> cache, EnquiryMailService mailService) {
+    public IdempotencyService(Cache<UUID, IdempotencyRecord> cache, EnquiryMailService mailService) {
         this.cache = cache;
         this.mailService = mailService;
     }
 
-    public void process(String key, FormSubmission submission) {
+    public void process(UUID key, FormSubmission submission) {
         String hash = hash(submission);
         IdempotencyRecord reserve = new IdempotencyRecord(hash, IdempotencyRecord.Status.PROCESSING);
 

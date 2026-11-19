@@ -37,87 +37,88 @@ public class EnquiryMailControllerTest {
                 """.formatted(name, email, message, consent);
     }
 
-    private ResultActions mockPost(String uuid, String path, String jsonBody) throws Exception {
+    // The key is a UUID in the tests; a header is text on the wire, so it is converted only here.
+    private ResultActions mockPost(UUID key, String path, String jsonBody) throws Exception {
         return mockMvc.perform(post(path)
-                .header("Idempotency-Key", uuid)
+                .header("Idempotency-Key", key.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonBody));
     }
 
     @Test
     void validRequestReturns201() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
-        mockPost(uuid, PATH,
+        mockPost(key, PATH,
                 json("Test", "test@test.com",
                         "Need a quote please", true))
                 .andExpect(status().isCreated());
 
-        verify(idempotencyService).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void missingRequestFieldsReturns400() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
         String req = """
                 {"name": "%s", "email": "%s"}
                 """.formatted("Dumb user", "dummy123@dumb.com");
 
-        mockPost(uuid, PATH, req).andExpect(status().isBadRequest());
+        mockPost(key, PATH, req).andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void malformedJsonReturns400() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
         String malformedJson = """
                 {"name": "%s", "email":}
                 """.formatted("Dumb user");
 
         mockMvc.perform(post(PATH)
-                        .header("Idempotency-Key", uuid)
+                        .header("Idempotency-Key", key.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(malformedJson))
                 .andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void emptyBodyReturns400() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
-        mockPost(uuid, PATH, "").andExpect(status().isBadRequest());
+        mockPost(key, PATH, "").andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void invalidNameReturns400() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
-        mockPost(uuid, PATH,
+        mockPost(key, PATH,
                 json("", "test@test.com",
                         "Need a quote", true))
                 .andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void nameTooLongReturns400() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
         String nameTooLong = "A".repeat(101);
 
-        mockPost(uuid, PATH,
+        mockPost(key, PATH,
                 json(nameTooLong, "test@test.com",
                         "Need a quote", true))
                 .andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @ParameterizedTest
@@ -128,55 +129,55 @@ public class EnquiryMailControllerTest {
             "test@test."
     })
     void invalidEmailReturns400(String email) throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
-        mockPost(uuid, PATH,
+        mockPost(key, PATH,
                 json("Test", email,
                         "Need a quote please", true))
                 .andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void blankMessageReturns400() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
-        mockPost(uuid, PATH,
+        mockPost(key, PATH,
                 json("test", "test@test.com", "", true))
                 .andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void messageTooLongReturns400() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
         String message = "A".repeat(2001);
 
-        mockPost(uuid, PATH,
+        mockPost(key, PATH,
                 json("Test", "test@test.com",
                         message, true))
                 .andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void noConsentReturns400() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
-        mockPost(uuid, PATH,
+        mockPost(key, PATH,
                 json("Test", "test@test.com",
                         "Need a quote please", false))
                 .andExpect(status().isBadRequest());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
     void wrongContentTypeReturns415() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
         String req = """
                 <?xml version="1.0" encoding="utf-8"?>
@@ -190,12 +191,12 @@ public class EnquiryMailControllerTest {
                 """;
 
         mockMvc.perform(post(PATH)
-                        .header("Idempotency-Key", uuid)
+                        .header("Idempotency-Key", key.toString())
                         .contentType(MediaType.APPLICATION_ATOM_XML)
                         .content(req))
                 .andExpect(status().isUnsupportedMediaType());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 
     @Test
@@ -236,13 +237,13 @@ public class EnquiryMailControllerTest {
 
     @Test
     void unknownEndpointReturns404() throws Exception {
-        String uuid = UUID.randomUUID().toString();
+        UUID key = UUID.randomUUID();
 
-        mockPost(uuid, PATH + "/unknown",
+        mockPost(key, PATH + "/unknown",
                 json("Test", "test@test.com",
                         "Need a quote please", true))
                 .andExpect(status().isNotFound());
 
-        verify(idempotencyService, never()).process(eq(uuid), any(FormSubmission.class));
+        verify(idempotencyService, never()).process(eq(key), any(FormSubmission.class));
     }
 }
