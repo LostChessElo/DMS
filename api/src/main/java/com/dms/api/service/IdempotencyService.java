@@ -4,12 +4,14 @@ import com.dms.api.dtos.FormSubmission;
 import com.dms.api.dtos.IdempotencyRecord;
 import com.dms.api.exception.ApiException;
 import com.github.benmanes.caffeine.cache.Cache;
-import com.google.common.hash.Funnel;
-import com.google.common.hash.Hashing;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -50,18 +52,23 @@ public class IdempotencyService {
         }
     }
 
-    private String hash(FormSubmission submission) {
-        Funnel<FormSubmission> SUBMISSION_FUNNEL = (sub, into) -> {
-            into.putString(sub.name(), StandardCharsets.UTF_8);
-            into.putString(sub.email(), StandardCharsets.UTF_8);
-            into.putString(sub.message(), StandardCharsets.UTF_8);
-            into.putBoolean(sub.consent());
-        };
 
-        return Hashing.sha256()
-                .newHasher()
-                .putObject(submission, SUBMISSION_FUNNEL)
-                .hash()
-                .toString();
+    private static String hash(FormSubmission s) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            update(digest, s.name());
+            update(digest, s.email());
+            update(digest, s.message());
+            digest.update((byte) (s.consent() ? 1 : 0));
+            return HexFormat.of().formatHex(digest.digest());
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);   // every JVM must provide SHA-256
+        }
+    }
+
+    private static void update(MessageDigest digest, String field) {
+        byte[] bytes = field.getBytes(StandardCharsets.UTF_8);
+        digest.update(ByteBuffer.allocate(4).putInt(bytes.length).array());
+        digest.update(bytes);
     }
 }

@@ -68,6 +68,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 headers, statusCode);
     }
 
+    
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleDefault(Exception ex) {
         log.error("Unhandled exception", ex);
